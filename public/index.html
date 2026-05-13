@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATMOS</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- Ambient background blobs -->
+<div class="blob b1"></div>
+<div class="blob b2"></div>
+<div class="blob b3"></div>
+
+<!-- Rain canvas overlay -->
+<canvas id="rainCanvas"></canvas>
+
+<!-- Heat glow overlay -->
+<div id="heatOverlay"></div>
+
+<div class="wrap">
+
+    <!-- ── HEADER ── -->
+    <header class="card">
+        <div class="logo">ATMOS<small>FIREBASE REALTIME</small></div>
+        <div class="header-right">
+            <span class="clock" id="clock">--:--:--</span>
+            <div class="status-pill offline" id="statusPill">
+                <span class="pulse-dot"></span>
+                <span id="statusTxt">WAITING</span>
+            </div>
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"></button>
+            <span id="themeIcon">🌙</span>
+        </div>
+    </header>
+
+    <!-- ── METRIC CARDS ROW ── -->
+    <div class="metrics-grid">
+
+        <!-- Temperature -->
+        <div class="card metric-card" id="tempCard">
+            <div class="card-top">
+                <div class="icon-box icon-orange">🌡️</div>
+                <span class="badge" id="comfortBadge">---</span>
+            </div>
+            <div class="card-label">Temperature</div>
+            <div class="value-row">
+                <span class="value-big" id="temp" style="color:#fb923c">--</span>
+                <span class="value-unit">°C</span>
+            </div>
+            <div class="card-bottom">
+                <span class="sub-text">Feels like <strong id="feelsLike">--</strong>°C</span>
+                <div class="arc-wrap">
+                    <svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+                        <circle class="arc-track" cx="30" cy="30" r="25"/>
+                        <circle class="arc-fill" id="arcTemp" cx="30" cy="30" r="25" stroke="#fb923c"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Humidity -->
+        <div class="card metric-card">
+            <div class="card-top">
+                <div class="icon-box icon-blue">💧</div>
+                <span class="badge badge-blue">RH</span>
+            </div>
+            <div class="card-label">Humidity</div>
+            <div class="value-row">
+                <span class="value-big" id="hum" style="color:#6c8eff">--</span>
+                <span class="value-unit">%</span>
+            </div>
+            <div class="card-bottom">
+                <span class="sub-text">Relative Humidity</span>
+                <div class="arc-wrap">
+                    <svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+                        <circle class="arc-track" cx="30" cy="30" r="25"/>
+                        <circle class="arc-fill" id="arcHum" cx="30" cy="30" r="25" stroke="#6c8eff"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Air Quality / PPM -->
+        <div class="card metric-card">
+            <div class="card-top">
+                <div class="icon-box icon-purple">🫧</div>
+                <span class="badge badge-green" id="gasAlertBadge">✓ Normal</span>
+            </div>
+            <div class="card-label">CO₂ Estimate</div>
+            <div class="value-row">
+                <span class="value-big" id="ppm" style="color:#a78bfa">--</span>
+                <span class="value-unit">ppm</span>
+            </div>
+            <div class="card-bottom">
+                <span class="sub-text">Raw: <strong id="airRawSmall">--</strong></span>
+                <div class="arc-wrap">
+                    <svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+                        <circle class="arc-track" cx="30" cy="30" r="25"/>
+                        <circle class="arc-fill" id="arcPpm" cx="30" cy="30" r="25" stroke="#a78bfa"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ── AIR QUALITY INDEX PANEL ── -->
+    <div class="card aq-panel">
+        <div class="aq-left">
+            <div class="card-label" style="margin-bottom:10px;">Air Quality Index</div>
+            <div class="aq-label" id="aqLabel">---</div>
+            <div class="sub-text" style="margin-top:6px;">Raw: <span id="airRaw">--</span> / 1023</div>
+            <div class="aq-bar-wrap">
+                <div class="aq-bar">
+                    <div class="aq-seg" id="seg0" style="--sc:#00c896"></div>
+                    <div class="aq-seg" id="seg1" style="--sc:#7bc800"></div>
+                    <div class="aq-seg" id="seg2" style="--sc:#f0b800"></div>
+                    <div class="aq-seg" id="seg3" style="--sc:#f07000"></div>
+                    <div class="aq-seg" id="seg4" style="--sc:#e03000"></div>
+                    <div class="aq-seg" id="seg5" style="--sc:#9000cc"></div>
+                </div>
+                <div class="aq-labels">
+                    <span>Excellent</span><span>Good</span><span>Moderate</span><span>Poor</span><span>Bad</span><span>Hazardous</span>
+                </div>
+            </div>
+        </div>
+        <div class="aq-right">
+            <div class="card-label" style="margin-bottom:6px;">CO₂ Approx</div>
+            <div class="aq-ppm" id="aqPpm">--</div>
+            <div class="sub-text" style="margin-top:2px;">ppm</div>
+        </div>
+    </div>
+
+    <!-- ── CHARTS GRID ── -->
+    <div class="charts-grid">
+        <div class="card chart-card">
+            <div class="card-label">🌡 Temp History</div>
+            <div class="chart-wrap"><canvas id="chartTemp"></canvas></div>
+        </div>
+        <div class="card chart-card">
+            <div class="card-label">💧 Humidity History</div>
+            <div class="chart-wrap"><canvas id="chartHum"></canvas></div>
+        </div>
+        <div class="card chart-card">
+            <div class="card-label">🫧 Air Raw</div>
+            <div class="chart-wrap"><canvas id="chartAir"></canvas></div>
+        </div>
+        <div class="card chart-card">
+            <div class="card-label">📊 CO₂ ppm</div>
+            <div class="chart-wrap"><canvas id="chartPpm"></canvas></div>
+        </div>
+    </div>
+
+    <!-- ── RAIN PANEL ── -->
+    <div class="card rain-panel" id="rainPanel">
+        <div class="rain-info">
+            <div class="rain-title" id="rainTitle">---</div>
+            <div class="sub-text" id="rainDesc">Waiting for Firebase...</div>
+        </div>
+        <div class="rain-icon" id="rainIcon">🌤️</div>
+    </div>
+
+    <footer>ATMOS · WeMos D1 R1 · DHT11 + MQ135 + Rain Sensor · Firebase RTDB</footer>
+
+</div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
