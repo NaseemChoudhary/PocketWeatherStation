@@ -4,10 +4,10 @@
 #include <addons/RTDBHelper.h>
 #include <DHT.h>
 
-#define WIFI_SSID      "POCO C75 5G"
-#define WIFI_PASSWORD  "hayaitachii"
-#define API_KEY        "AIzaSyCoumP_vQfqXhgPyXZyaJm6P9lUKr57MNw"
-#define DATABASE_URL   "atmos-10f2c-default-rtdb.asia-southeast1.firebasedatabase.app"
+#define WIFI_SSID      "YOUR_WIFI_SSID"
+#define WIFI_PASSWORD  "YOUR_WIFI_PASSWORD"
+#define API_KEY        "YOUR_FIREBASE_API_KEY"
+#define DATABASE_URL   "YOUR_FIREBASE_DATABASE_URL"
 
 #define DHTPIN    D5
 #define DHTTYPE   DHT11
